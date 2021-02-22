@@ -810,12 +810,12 @@ export const generateCategoricalChart = ({
           }));
         }
       }
-      const componsedFn = item && item.type && item.type.getComposedData;
+      const composedFn = item && item.type && item.type.getComposedData;
 
-      if (componsedFn) {
+      if (composedFn) {
         formatedItems.push({
           props: {
-            ...componsedFn({
+            ...composedFn({
               ...axisObj,
               displayedData,
               props,

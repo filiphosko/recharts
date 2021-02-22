@@ -32,15 +32,43 @@ export const formatAxisMap = (props: any, axisMap: any, offset: any, axisType: A
     const { orientation, domain, padding = {}, mirror, reversed } = axis;
     const offsetKey = `${orientation}${mirror ? 'Mirror' : ''}`;
 
-    let range, x, y, needSpace;
+    let calculatedPadding, range, x, y, needSpace;
+
+    if (axis.padding === 'gap' || axis.padding === 'no-gap') {
+      const diff = domain[1] - domain[0];
+      let smallestDistanceBetweenValues = Infinity;
+      const sortedValues = axis.categoricalDomain.sort();
+      sortedValues.forEach((value: number, index: number) => {
+        smallestDistanceBetweenValues = Math.min(
+          (value || 0) - (sortedValues[index - 1] || 0),
+          smallestDistanceBetweenValues,
+        );
+      });
+      const smallestDistanceInPercent = smallestDistanceBetweenValues / diff;
+      const rangeWidth = axis.layout === 'vertical' ? offset.top + offset.height : offset.width + offset.left;
+
+      if (axis.padding === 'gap') {
+        calculatedPadding = (smallestDistanceInPercent * rangeWidth) / 2;
+      }
+
+      if (axis.padding === 'no-gap') {
+        calculatedPadding = smallestDistanceInPercent * rangeWidth * 0.35;
+      }
+    }
 
     if (axisType === 'xAxis') {
-      range = [offset.left + (padding.left || 0), offset.left + offset.width - (padding.right || 0)];
+      range = [
+        offset.left + (padding.left || 0) + (calculatedPadding || 0),
+        offset.left + offset.width - (padding.right || 0) - (calculatedPadding || 0),
+      ];
     } else if (axisType === 'yAxis') {
       range =
         layout === 'horizontal'
           ? [offset.top + offset.height - (padding.bottom || 0), offset.top + (padding.top || 0)]
-          : [offset.top + (padding.top || 0), offset.top + offset.height - (padding.bottom || 0)];
+          : [
+              offset.top + (padding.top || 0) + (calculatedPadding || 0),
+              offset.top + offset.height - (padding.bottom || 0) - (calculatedPadding || 0),
+            ];
     } else {
       ({ range } = axis);
     }
