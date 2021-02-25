@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { getTicksOfScale, parseScale, checkDomainOfScale, getBandSizeOfAxis } from './ChartUtils';
 import { findChildByType } from './ReactUtils';
 import { Coordinate, AxisType } from './types';
+import { getPercentValue } from './DataUtils';
 
 /**
  * Calculate the scale function, position, width, height of axes
@@ -34,25 +35,29 @@ export const formatAxisMap = (props: any, axisMap: any, offset: any, axisType: A
 
     let calculatedPadding, range, x, y, needSpace;
 
-    if (axis.padding === 'gap' || axis.padding === 'no-gap') {
+    if (axis.type === 'number' && (axis.padding === 'gap' || axis.padding === 'no-gap')) {
       const diff = domain[1] - domain[0];
       let smallestDistanceBetweenValues = Infinity;
       const sortedValues = axis.categoricalDomain.sort();
       sortedValues.forEach((value: number, index: number) => {
-        smallestDistanceBetweenValues = Math.min(
-          (value || 0) - (sortedValues[index - 1] || 0),
-          smallestDistanceBetweenValues,
-        );
+        if (index > 0) {
+          smallestDistanceBetweenValues = Math.min(
+            (value || 0) - (sortedValues[index - 1] || 0),
+            smallestDistanceBetweenValues,
+          );
+        }
       });
       const smallestDistanceInPercent = smallestDistanceBetweenValues / diff;
-      const rangeWidth = axis.layout === 'vertical' ? offset.top + offset.height : offset.width + offset.left;
+      const rangeWidth = axis.layout === 'vertical' ? offset.height : offset.width;
 
       if (axis.padding === 'gap') {
         calculatedPadding = (smallestDistanceInPercent * rangeWidth) / 2;
       }
 
       if (axis.padding === 'no-gap') {
-        calculatedPadding = smallestDistanceInPercent * rangeWidth * 0.35;
+        const gap = getPercentValue(props.barCategoryGap, smallestDistanceInPercent * rangeWidth);
+        const halfBand = (smallestDistanceInPercent * rangeWidth) / 2;
+        calculatedPadding = halfBand - gap - ((halfBand - gap) / rangeWidth) * gap;
       }
     }
 
