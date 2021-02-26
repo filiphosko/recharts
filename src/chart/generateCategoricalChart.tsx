@@ -1370,6 +1370,8 @@ export const generateCategoricalChart = ({
     /**
      * The handler of mouse entering a scatter
      * @param {Object} el     The active scatter
+     * @param {Number} index  the index of the item
+     * @param {Object} e      the click event
      * @return {Object} no return
      */
     handleItemMouseEnter = (el: any, index: number, e: React.MouseEvent) => {
