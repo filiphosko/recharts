@@ -2,12 +2,12 @@
 *.log
 node_modules
 umd
-lib
-es6
+# lib
+# es6
 coverage
 npm-debug.log
 *.orig
 .idea/
 .justconf/
-types
+# types
 build
