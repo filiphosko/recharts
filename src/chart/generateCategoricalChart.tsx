@@ -789,9 +789,9 @@ export const generateCategoricalChart = ({
       let barPosition = [];
 
       if (itemIsBar) {
-        const barBandSize = getBandSizeOfAxis(cateAxis, cateTicks, true);
         // 如果是bar，计算bar的位置
         const maxBarSize = _.isNil(childMaxBarSize) ? globalMaxBarSize : childMaxBarSize;
+        const barBandSize = getBandSizeOfAxis(cateAxis, cateTicks, true) || maxBarSize;
         barPosition = getBarPosition({
           barGap,
           barCategoryGap,
@@ -1071,7 +1071,7 @@ export const generateCategoricalChart = ({
         this.addListener();
       }
       // remove syncId
-      if (!_.isNil(this.props.syncId) && _.isNil(prevProps.syncId)) {
+      if (!_.isNil(prevProps.syncId) && _.isNil(this.props.syncId)) {
         this.removeListener();
       }
     }
@@ -1374,7 +1374,7 @@ export const generateCategoricalChart = ({
      * @param {Object} e      the click event
      * @return {Object} no return
      */
-    handleItemMouseEnter = (el: any, index: number, e: React.MouseEvent) => {
+    handleItemMouseEnter = (el: any) => {
       this.setState(() => ({
         isTooltipActive: true,
         activeItem: el,
@@ -1531,7 +1531,7 @@ export const generateCategoricalChart = ({
         }
         if (typeof syncMethod === 'function') {
           // Call a callback function. If there is an application specific algorithm
-          activeTooltipIndex = syncMethod(activeTooltipIndex, data);
+          activeTooltipIndex = syncMethod(tooltipTicks, data);
         } else if (syncMethod === 'value') {
           // Set activeTooltipIndex to the index with the same value as data.activeLabel
           // For loop instead of findIndex because the latter is very slow in some browsers
